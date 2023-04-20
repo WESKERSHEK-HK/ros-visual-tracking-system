@@ -1,7 +1,7 @@
 <launch>
-  <!-- Load the RealSense camera node -->
-  <include file="$(find realsense2_camera)/launch/rs_rgbd.launch" />
+    <!-- Launch RealSense Node -->
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch" />
 
-  <!-- Start the realsense_object_tracker node -->
-  <node name="realsense_object_tracker" pkg="object_tracker" type="realsense_object_tracker.py" output="screen" />
+    <!-- Launch Object Tracker Node -->
+    <node name="object_tracker_node" pkg="object_tracker" type="object_tracker_node.py" output="screen" />
 </launch>
