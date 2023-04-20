@@ -10,6 +10,7 @@ project(object_tracker)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   rospy
+  realsense2_camera
   sensor_msgs
   std_msgs
 )
