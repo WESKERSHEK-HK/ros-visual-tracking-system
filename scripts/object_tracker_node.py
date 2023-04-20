@@ -47,7 +47,7 @@ class RobotTracker:
         # Try to open and read the settings file
             with open(SETTINGS_FILE, "r") as f:
                 settings = json.load(f)
-        except OSError:
+        except IOError:
         # If an error occurs (e.g., file not found), use default settings
             settings = {
                 "color_threshold": 30,
