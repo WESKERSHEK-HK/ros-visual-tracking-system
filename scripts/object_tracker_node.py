@@ -41,16 +41,21 @@ class RobotTracker:
         self.save_settings()
 
     def load_settings(self):
+        SETTINGS_FILE = "settings.json"  # Define the settings file name
+
         try:
+        # Try to open and read the settings file
             with open(SETTINGS_FILE, "r") as f:
                 settings = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
+        except OSError:
+        # If an error occurs (e.g., file not found), use default settings
             settings = {
                 "color_threshold": 30,
                 "contour_size": 100,
                 "trim_size": 10
             }
-        return settings
+        return settings  # Return the loaded or default settings
+
 
     def save_settings(self):
         with open(SETTINGS_FILE, "w") as f:
