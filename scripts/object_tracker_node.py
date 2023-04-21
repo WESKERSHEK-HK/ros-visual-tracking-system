@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-os.environ['OPENCV_UI_BACKEND'] = 'GTK2'
+os.environ['OPENCV_UI_BACKEND'] = 'GTK' 
 import rospy
 import cv2
 import numpy as np
