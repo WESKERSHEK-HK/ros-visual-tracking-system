@@ -25,6 +25,7 @@ class RobotTracker:
 
         self.rate = rospy.Rate(30)
 
+        cv2.waitKey(1)
         print('start robot tracker')
         # Load settings from file
         self.settings = self.load_settings()
@@ -72,6 +73,7 @@ class RobotTracker:
     def track_robot(self):
         if self.rgb_img is None or self.depth_img is None:
             return None
+        cv2.imshow("Settings", self.rgb_img)
 
         # Get trackbar values from settings
         color_threshold = self.settings["color_threshold"]
@@ -125,7 +127,7 @@ class RobotTracker:
         while not rospy.is_shutdown():
             self.track_robot()
             self.rate.sleep()
-
+            cv2.waitKey(1)
         cv2.destroyAllWindows()
 
 if __name__ == '__main__':
