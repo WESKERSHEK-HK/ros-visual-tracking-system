@@ -25,35 +25,36 @@ class ObjectTracker:
             return
 
     def image_callback(self, data):
-        if self.depth_image is None:
-            return
-        
-        try:
-            cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        except CvBridgeError as e:
-            print(e)
-            return
+    if self.depth_image is None:
+        return
+    
+    try:
+        cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+    except CvBridgeError as e:
+        print(e)
+        return
 
-        tracked_object, object_pos = self.track_largest_black_object(cv_image)
-        if tracked_object is not None:
-            smaller_size = (320, 240)
-            tracked_object_resized = cv2.resize(tracked_object, smaller_size)
+    tracked_object, object_pos = self.track_largest_black_object(cv_image)
+    if tracked_object is not None:
+        # Resize the tracked object image
+        smaller_size = (320, 240)
+        tracked_object_resized = cv2.resize(tracked_object, smaller_size)
 
-            cv2.imshow("Tracked Object", tracked_object_resized)
-            cv2.waitKey(1)
+        cv2.imshow("Tracked Object", tracked_object_resized)
+        cv2.waitKey(1)
 
-            x, y = object_pos
-            depth = self.depth_image[y, x]
+        x, y = object_pos
+        depth = self.depth_image[y, x]
 
-            position_msg = Point()
-            position_msg.x = x
-            position_msg.y = 0
-            position_msg.z = depth
+        position_msg = Point()
+        position_msg.x = x
+        position_msg.y = 0
+        position_msg.z = depth
 
-            self.position_pub.publish(position_msg)
+        self.position_pub.publish(position_msg)
 
-            if -30 <= position_msg.x <= 30 and -50 <= position_msg.z <= 50:
-                self.home_pub.publish(Empty())
+        if -30 <= position_msg.x <= 30 and -50 <= position_msg.z <= 50:
+            self.home_pub.publish(Empty())
 
 
     def track_largest_black_object(self, image):
