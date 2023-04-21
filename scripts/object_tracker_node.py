@@ -18,8 +18,10 @@ class ObjectTracker:
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
         cv2.namedWindow("Settings")
-        cv2.createTrackbar("Min Contour Size", "Settings", 100, 1000, lambda x: None)
-        cv2.createTrackbar("Max Contour Size", "Settings", 1000, 10000, lambda x: None)
+        cv2.createTrackbar("Min Contour Size", "Settings", 1000, 100000, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", 10000, 1000000, lambda x: None)
+        cv2.createTrackbar("Lower Threshold", "Settings", lower_threshold, 255, None)
+        cv2.createTrackbar("Upper Threshold", "Settings", upper_threshold, 255, None)
 
     def depth_callback(self, data):
         try:
@@ -38,12 +40,13 @@ class ObjectTracker:
             print(e)
             return
 
-        tracked_object, object_pos, pos, h, w = self.track_largest_black_object(cv_image)
+        tracked_object, binary_object, object_pos, pos, h, w = self.track_largest_black_object(cv_image)
 
         if tracked_object is not None and object_pos is not None and pos is not None:
             x, y = pos
             smaller_size = (320, 240)
             tracked_object_resized = cv2.resize(tracked_object, smaller_size)
+            binary_object_resized = cv2.resize(binary_object, smaller_size)
 
             scaled_x = x * smaller_size[0] // cv_image.shape[1]
             scaled_y = (y + h) * smaller_size[1] // cv_image.shape[0]  # Add the height of the bounding box (h) to the y coordinate
@@ -52,6 +55,7 @@ class ObjectTracker:
             
 
             cv2.imshow("Tracked Object", tracked_object_resized)
+            cv2.imshow("Binary Object", binary_object_resized)
             cv2.waitKey(1)
 
             x, y = object_pos
@@ -77,8 +81,11 @@ class ObjectTracker:
         # Convert the image to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Threshold the image to create a binary image
-        _, binary = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
+        lower_threshold = cv2.getTrackbarPos("Lower Threshold", "Settings")
+        upper_threshold = cv2.getTrackbarPos("Upper Threshold", "Settings")
+
+        # Apply the threshold
+        _, binary = cv2.threshold(gray, lower_threshold, upper_threshold, cv2.THRESH_BINARY_INV)
 
         # Find contours in the binary image
         _, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -97,9 +104,9 @@ class ObjectTracker:
             x, y, w, h = cv2.boundingRect(largest_contour)
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             object_center = (x + w // 2, y + h // 2)
-            return image, object_center, (x, y), h, w
+            return image,binary, object_center, (x, y), h, w
         else:
-            return image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
+            return image,binary, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
 
 
