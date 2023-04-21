@@ -20,8 +20,8 @@ class ObjectTracker:
 
         min_contour_size, max_contour_size = load_slider_values()
         cv2.namedWindow("Settings")
-        cv2.createTrackbar("Min Contour Size", "Settings", min_contour_size, 1000, lambda x: None)
-        cv2.createTrackbar("Max Contour Size", "Settings", max_contour_size, 10000, lambda x: None)
+        cv2.createTrackbar("Min Contour Size", "Settings", min_contour_size, 100, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", max_contour_size, 1000, lambda x: None)
 
     def depth_callback(self, data):
         try:
@@ -115,7 +115,7 @@ def save_slider_values(min_contour_size, max_contour_size):
 
 def load_slider_values():
     default_min_contour_size = 1
-    default_max_contour_size = 1000
+    default_max_contour_size = 100
 
     try:
         with open('slider_values.json', 'r') as infile:
