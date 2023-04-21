@@ -18,8 +18,8 @@ class ObjectTracker:
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
         cv2.namedWindow("Settings")
-        cv2.createTrackbar("Min Contour Size", "Settings", 10, 100, lambda x: None)
-        cv2.createTrackbar("Max Contour Size", "Settings", 100, 1000, lambda x: None)
+        cv2.createTrackbar("Min Contour Size", "Settings", 100, 1000, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", 500, 10000, lambda x: None)
 
     def depth_callback(self, data):
         try:
