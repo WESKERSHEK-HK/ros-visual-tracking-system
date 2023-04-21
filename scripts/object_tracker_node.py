@@ -20,8 +20,8 @@ class ObjectTracker:
 
         cv2.namedWindow("Settings")
         min_contour_size, max_contour_size = load_slider_values()
-        cv2.createTrackbar("Min Contour Size", "Settings", min_contour_size, 100, lambda x: save_slider_values())
-        cv2.createTrackbar("Max Contour Size", "Settings", max_contour_size, 1000, lambda x: save_slider_values())
+        cv2.createTrackbar("Min Contour Size", "Settings", min_contour_size, 100, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", max_contour_size, 1000, lambda x: None)
 
 
     def depth_callback(self, data):
@@ -140,6 +140,7 @@ def main():
     try:
         rospy.spin()
     except KeyboardInterrupt:
+        save_slider_values()
         print("Shutting down")
     cv2.destroyAllWindows()
 
