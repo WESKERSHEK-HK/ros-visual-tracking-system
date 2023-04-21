@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import os
-os.environ['OPENCV_UI_BACKEND'] = 'GTK2'
+
 import rospy
 import cv2
 import numpy as np
@@ -32,7 +31,7 @@ class RobotTracker:
         self.settings = self.load_settings()
 
         # Create UI window and trackbars
-        cv2.imshow("Settings", cv2.WINDOW_NORMAL)
+        #cv2.imshow("Settings", cv2.WINDOW_NORMAL)
         cv2.createTrackbar("Color Threshold", "Settings", self.settings["color_threshold"], 255, self.update_settings)
         cv2.createTrackbar("Contour Size", "Settings", self.settings["contour_size"], 1000, self.update_settings)
         cv2.createTrackbar("Trim Size", "Settings", self.settings["trim_size"], 50, self.update_settings)
@@ -67,6 +66,7 @@ class RobotTracker:
 
     def rgb_callback(self, msg):
         self.rgb_img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        cv2.imshow("RealSenseImage", self.rgb_img)
 
     def depth_callback(self, msg):
         self.depth_img = self.bridge.imgmsg_to_cv2(msg, "32FC1")
@@ -74,13 +74,6 @@ class RobotTracker:
     def track_robot(self):
         if self.rgb_img is None or self.depth_img is None:
             return None
-        print("RGB image shape:", self.rgb_img.shape)
-        print("Depth image shape:", self.depth_img.shape)
-
-        self.rgb_img = cv2.cvtColor(self.rgb_img, cv2.COLOR_RGB2BGR)  # Convert color image to BGR format
-
-        cv2.imshow("Color Image", self.rgb_img)
-        cv2.imshow("Depth Image", self.depth_img)
 
         # Get trackbar values from settings
         color_threshold = self.settings["color_threshold"]
