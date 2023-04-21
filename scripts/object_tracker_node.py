@@ -52,7 +52,7 @@ class ObjectTracker:
             
 
             cv2.imshow("Tracked Object", tracked_object_resized)
-            cv2.waitKey(0.1)
+            cv2.waitKey(1)
 
             x, y = object_pos
             depth_image_height, depth_image_width = self.depth_image.shape
