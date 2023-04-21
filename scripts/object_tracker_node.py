@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import rospy
 import cv2
 import numpy as np
@@ -20,6 +19,7 @@ class RobotTracker:
 
         self.depth_img = None
         self.rgb_img = None
+        cv2.imshow("Settings", self.rgb_img)
 
         rospy.Subscriber('/camera/color/image_raw', Image, self.rgb_callback)
         rospy.Subscriber('/camera/depth/image_raw', Image, self.depth_callback)
@@ -31,7 +31,7 @@ class RobotTracker:
         self.settings = self.load_settings()
 
         # Create UI window and trackbars
-        #cv2.imshow("Settings", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("Settings", cv2.WINDOW_NORMAL)
         cv2.createTrackbar("Color Threshold", "Settings", self.settings["color_threshold"], 255, self.update_settings)
         cv2.createTrackbar("Contour Size", "Settings", self.settings["contour_size"], 1000, self.update_settings)
         cv2.createTrackbar("Trim Size", "Settings", self.settings["trim_size"], 50, self.update_settings)
@@ -66,14 +66,16 @@ class RobotTracker:
 
     def rgb_callback(self, msg):
         self.rgb_img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-        cv2.imshow("RealSenseImage", self.rgb_img)
 
     def depth_callback(self, msg):
         self.depth_img = self.bridge.imgmsg_to_cv2(msg, "32FC1")
 
     def track_robot(self):
         if self.rgb_img is None or self.depth_img is None:
-            return None
+            print("No Image")
+            return None 
+        
+        cv2.imshow("Settings", self.rgb_img)
 
         # Get trackbar values from settings
         color_threshold = self.settings["color_threshold"]
