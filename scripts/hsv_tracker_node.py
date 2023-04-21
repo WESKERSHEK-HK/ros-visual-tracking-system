@@ -44,15 +44,16 @@ class ObjectTracker:
         except CvBridgeError as e:
             print(e)
             return
-        
-        tracked_object, object_pos, pos, h, w = self.track_largest_object(hsv_image, cv_image)
+
+        tracked_object, object_pos, pos, h, w = self.track_largest_black_object(hsv_image)
+
         if tracked_object is not None and object_pos is not None and pos is not None:
             x, y = pos
             smaller_size = (320, 240)
             tracked_object_resized = cv2.resize(tracked_object, smaller_size)
 
-            scaled_x = x * smaller_size[0] // cv_image.shape[1]
-            scaled_y = (y + h) * smaller_size[1] // cv_image.shape[0]  # Add the height of the bounding box (h) to the y coordinate
+            scaled_x = x * smaller_size[0] // hsv_image.shape[1]
+            scaled_y = (y + h) * smaller_size[1] // hsv_image.shape[0]  # Add the height of the bounding box (h) to the y coordinate
             cv2.putText(tracked_object_resized, "X: {}, Z: {}".format(object_pos[0], object_pos[1]), (scaled_x, scaled_y + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             cv2.putText(tracked_object_resized, "Size: {}".format(h*w), (scaled_x, scaled_y + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             
@@ -77,19 +78,14 @@ class ObjectTracker:
                 if -30 <= position_msg.x <= 30 and -50 <= position_msg.z <= 50:
                     self.home_pub.publish(Empty())
 
-    def track_largest_object(self, hsv_image, cv_image):
-        # Get slider values
-        h_lower = cv2.getTrackbarPos("H Lower", "Settings")
-        h_upper = cv2.getTrackbarPos("H Upper", "Settings")
-        s_lower = cv2.getTrackbarPos("S Lower", "Settings")
-        s_upper = cv2.getTrackbarPos("S Upper", "Settings")
-        v_lower = cv2.getTrackbarPos("V Lower", "Settings")
-        v_upper = cv2.getTrackbarPos("V Upper", "Settings")
 
-        # Create a binary mask for the specified color range in the HSV image
-        lower_bound = np.array([h_lower, s_lower, v_lower])
-        upper_bound = np.array([h_upper, s_upper, v_upper])
-        binary = cv2.inRange(hsv_image, lower_bound, upper_bound)
+
+    def track_largest_black_object(self, image):
+        # Convert the image to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Threshold the image to create a binary image
+        _, binary = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
 
         # Find contours in the binary image
         _, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -106,11 +102,12 @@ class ObjectTracker:
         if len(filtered_contours) > 0:
             largest_contour = max(filtered_contours, key=cv2.contourArea)
             x, y, w, h = cv2.boundingRect(largest_contour)
-            cv2.rectangle(cv_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             object_center = (x + w // 2, y + h // 2)
-            return cv_image, object_center, (x, y), h, w
+            return image, object_center, (x, y), h, w
         else:
-            return cv_image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
+            return image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
+
 
 
 def main():
