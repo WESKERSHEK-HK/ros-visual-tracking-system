@@ -68,7 +68,7 @@ class ObjectTracker:
 
                 self.position_pub.publish(position_msg)
 
-                if -30 <= position_msg.x <= 30 and -50 <= position_msg.z <= 50:
+                if -300 >= position_msg.x >= 900 or 100 >= position_msg.z >= 700:
                     self.home_pub.publish(Empty())
 
 
