@@ -73,7 +73,13 @@ class RobotTracker:
     def track_robot(self):
         if self.rgb_img is None or self.depth_img is None:
             return None
-        cv2.imshow("Settings", self.rgb_img)
+        print("RGB image shape:", self.rgb_img.shape)
+        print("Depth image shape:", self.depth_img.shape)
+
+        self.rgb_img = cv2.cvtColor(self.rgb_img, cv2.COLOR_RGB2BGR)  # Convert color image to BGR format
+
+        cv2.imshow("Color Image", self.rgb_img)
+        cv2.imshow("Depth Image", self.depth_img)
 
         # Get trackbar values from settings
         color_threshold = self.settings["color_threshold"]
