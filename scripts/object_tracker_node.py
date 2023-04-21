@@ -18,10 +18,8 @@ class ObjectTracker:
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
         cv2.namedWindow("Settings")
-        cv2.createTrackbar("Min Contour Size", "Settings", 1000, 10000, lambda x: None)
-        cv2.createTrackbar("Max Contour Size", "Settings", 10000, 100000, lambda x: None)
-        cv2.createTrackbar("Lower Threshold", "Settings", 0, 255, lambda x: None)
-        cv2.createTrackbar("Upper Threshold", "Settings", 255, 255, lambda x: None)
+        cv2.createTrackbar("Min Contour Size", "Settings", 100, 10000, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", 1000, 100000, lambda x: None)
 
     def depth_callback(self, data):
         try:
@@ -79,11 +77,8 @@ class ObjectTracker:
         # Convert the image to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        lower_threshold = cv2.getTrackbarPos("Lower Threshold", "Settings")
-        upper_threshold = cv2.getTrackbarPos("Upper Threshold", "Settings")
-
-        # Apply the threshold
-        _, binary = cv2.threshold(gray, lower_threshold, upper_threshold, cv2.THRESH_BINARY_INV)
+        # Threshold the image to create a binary image
+        _, binary = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
 
         # Find contours in the binary image
         _, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -102,9 +97,9 @@ class ObjectTracker:
             x, y, w, h = cv2.boundingRect(largest_contour)
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             object_center = (x + w // 2, y + h // 2)
-            return image, object_center, (x, y), h, w
+            return binary, object_center, (x, y), h, w
         else:
-            return image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
+            return binary, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
 
 
