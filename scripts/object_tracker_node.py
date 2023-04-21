@@ -3,7 +3,6 @@
 import rospy
 import cv2
 import numpy as np
-import json
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Point
 from std_msgs.msg import Empty
@@ -19,10 +18,8 @@ class ObjectTracker:
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
         cv2.namedWindow("Settings")
-        min_contour_size, max_contour_size = load_slider_values()
-        cv2.createTrackbar("Min Contour Size", "Settings", min_contour_size, 100, lambda x: None)
-        cv2.createTrackbar("Max Contour Size", "Settings", max_contour_size, 1000, lambda x: None)
-
+        cv2.createTrackbar("Min Contour Size", "Settings", 10, 100, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", 100, 1000, lambda x: None)
 
     def depth_callback(self, data):
         try:
@@ -89,7 +86,6 @@ class ObjectTracker:
         min_contour_size = cv2.getTrackbarPos("Min Contour Size", "Settings")
         max_contour_size = cv2.getTrackbarPos("Max Contour Size", "Settings")
 
-
         # Filter the contours by size
         filtered_contours = [c for c in contours if min_contour_size <= cv2.contourArea(c) <= max_contour_size]
 
@@ -103,34 +99,6 @@ class ObjectTracker:
         else:
             return image, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
-def save_slider_values():
-    min_contour_size = cv2.getTrackbarPos("Min Contour Size", "Settings")
-    max_contour_size = cv2.getTrackbarPos("Max Contour Size", "Settings")
-
-    slider_values = {
-        'min_contour_size': min_contour_size,
-        'max_contour_size': max_contour_size
-    }
-
-    with open('slider_values.json', 'w') as outfile:
-        json.dump(slider_values, outfile)
-
-
-def load_slider_values():
-    default_min_contour_size = 1
-    default_max_contour_size = 100
-
-    try:
-        with open('slider_values.json', 'r') as infile:
-            slider_values = json.load(infile)
-            return slider_values['min_contour_size'], slider_values['max_contour_size']
-    except IOError:
-        print("Slider values file not found. Creating a new file with default values.")
-        
-        # Save default values to a new JSON file
-        save_slider_values(default_min_contour_size, default_max_contour_size)
-        
-        return default_min_contour_size, default_max_contour_size
 
 
 def main():
@@ -140,7 +108,6 @@ def main():
     try:
         rospy.spin()
     except KeyboardInterrupt:
-        save_slider_values()
         print("Shutting down")
     cv2.destroyAllWindows()
 
