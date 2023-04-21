@@ -41,7 +41,12 @@ class ObjectTracker:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         _, threshold = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
 
-        contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours = None
+        if cv2.__version__.startswith('3'):
+            _, contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        else:
+            contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
         if not contours:
             return None, None
 
@@ -52,6 +57,8 @@ class ObjectTracker:
         cv2.putText(image, "X: {}, Z: {}".format(x+w//2, y+h//2), (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         return image, (x + w // 2, y + h // 2)
+
+
 
 def main():
     rospy.init_node("object_tracker_node", anonymous=True)
