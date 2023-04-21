@@ -20,8 +20,8 @@ class ObjectTracker:
         cv2.namedWindow("Settings")
         cv2.createTrackbar("Min Contour Size", "Settings", 1000, 100000, lambda x: None)
         cv2.createTrackbar("Max Contour Size", "Settings", 10000, 1000000, lambda x: None)
-        cv2.createTrackbar("Lower Threshold", "Settings", 0, 255, None)
-        cv2.createTrackbar("Upper Threshold", "Settings", 255, 255, None)
+        cv2.createTrackbar("Lower Threshold", "Settings", 0, 255, lambda x: None)
+        cv2.createTrackbar("Upper Threshold", "Settings", 255, 255, lambda x: None)
 
     def depth_callback(self, data):
         try:
