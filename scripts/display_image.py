@@ -6,6 +6,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 
 bridge = CvBridge()
+print(cv2.__version__)
 
 def image_callback(msg):
     try:
