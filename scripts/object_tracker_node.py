@@ -38,7 +38,7 @@ class ObjectTracker:
             print(e)
             return
 
-        tracked_object, object_pos, pos, h = self.track_largest_black_object(cv_image)
+        tracked_object, object_pos, pos, h, w = self.track_largest_black_object(cv_image)
 
         if tracked_object is not None and object_pos is not None and pos is not None:
             x, y = pos
@@ -47,7 +47,7 @@ class ObjectTracker:
 
             scaled_x = x * smaller_size[0] // cv_image.shape[1]
             scaled_y = (y + h) * smaller_size[1] // cv_image.shape[0]  # Add the height of the bounding box (h) to the y coordinate
-            cv2.putText(tracked_object_resized, "X: {}, Z: {}".format(object_pos[0], object_pos[1]), (scaled_x, scaled_y + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(tracked_object_resized, "X: {}, Z: {}, Size: {}".format(object_pos[0], object_pos[1], h*w), (scaled_x, scaled_y + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             cv2.imshow("Tracked Object", tracked_object_resized)
             cv2.waitKey(1)
@@ -95,9 +95,9 @@ class ObjectTracker:
             x, y, w, h = cv2.boundingRect(largest_contour)
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             object_center = (x + w // 2, y + h // 2)
-            return image, object_center, (x, y), h
+            return image, object_center, (x, y), h, w
         else:
-            return image, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
+            return image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
 
 
