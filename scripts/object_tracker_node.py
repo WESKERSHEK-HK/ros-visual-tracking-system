@@ -19,7 +19,6 @@ class RobotTracker:
 
         self.depth_img = None
         self.rgb_img = None
-        cv2.imshow("Settings", self.rgb_img)
 
         rospy.Subscriber('/camera/color/image_raw', Image, self.rgb_callback)
         rospy.Subscriber('/camera/depth/image_raw', Image, self.depth_callback)
