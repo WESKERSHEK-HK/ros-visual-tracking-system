@@ -100,7 +100,7 @@ class ObjectTracker:
             object_center = (x + w // 2, y + h // 2)
             return image, object_center, (x, y), h
         else:
-            return image, None, None  # Return None for object_center and (x, y) when there are no valid contours
+            return image, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
 def save_slider_values():
     min_contour_size = cv2.getTrackbarPos("Min Contour Size", "Settings")
