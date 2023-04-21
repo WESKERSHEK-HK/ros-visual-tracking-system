@@ -18,8 +18,8 @@ class ObjectTracker:
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
         cv2.namedWindow("Settings")
-        cv2.createTrackbar("Min Contour Size", "Settings", 1000, 100000, lambda x: None)
-        cv2.createTrackbar("Max Contour Size", "Settings", 10000, 1000000, lambda x: None)
+        cv2.createTrackbar("Min Contour Size", "Settings", 1000, 10000, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", 10000, 100000, lambda x: None)
         cv2.createTrackbar("Lower Threshold", "Settings", 0, 255, lambda x: None)
         cv2.createTrackbar("Upper Threshold", "Settings", 255, 255, lambda x: None)
 
