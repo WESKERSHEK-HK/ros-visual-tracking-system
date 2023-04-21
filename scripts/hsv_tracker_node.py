@@ -106,11 +106,11 @@ class ObjectTracker:
         if len(filtered_contours) > 0:
             largest_contour = max(filtered_contours, key=cv2.contourArea)
             x, y, w, h = cv2.boundingRect(largest_contour)
-            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.rectangle(cv_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             object_center = (x + w // 2, y + h // 2)
-            return image, object_center, (x, y), h, w
+            return cv_image, object_center, (x, y), h, w
         else:
-            return image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
+            return cv_image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
 
 def main():
