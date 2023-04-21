@@ -34,11 +34,14 @@ class ObjectTracker:
             print(e)
             return
 
-        tracked_object, object_pos = self.track_largest_black_object(cv_image)
+        tracked_object, object_pos, (x, y) = self.track_largest_black_object(cv_image)
         if tracked_object is not None:
             smaller_size = (320, 240)
             tracked_object_resized = cv2.resize(tracked_object, smaller_size)
-            cv2.putText(tracked_object_resized, "X: {}, Z: {}".format(x, y), (x * smaller_size[0] // cv_image.shape[1], y * smaller_size[1] // cv_image.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+            scaled_x = x * smaller_size[0] // cv_image.shape[1]
+            scaled_y = y * smaller_size[1] // cv_image.shape[0]
+            cv2.putText(tracked_object_resized, "X: {}, Z: {}".format(object_pos[0], object_pos[1]), (scaled_x, scaled_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             cv2.imshow("Tracked Object", tracked_object_resized)
             cv2.waitKey(1)
@@ -81,7 +84,7 @@ class ObjectTracker:
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
         #cv2.putText(image, "X: {}, Z: {}".format(x+w//2, y+h//2), (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-        return image, (x + w // 2, y + h // 2)
+        return image, (x + w // 2, y + h // 2), (x, y)
 
 
 def main():
