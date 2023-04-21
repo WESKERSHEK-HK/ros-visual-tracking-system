@@ -18,6 +18,7 @@ class ObjectTracker:
         self.position_pub = rospy.Publisher("/dog/position", Point, queue_size=10)
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
+        cv2.namedWindow("Settings")
         min_contour_size, max_contour_size = load_slider_values()
         cv2.createTrackbar("Min Contour Size", "Settings", min_contour_size, 100, lambda x: save_slider_values())
         cv2.createTrackbar("Max Contour Size", "Settings", max_contour_size, 1000, lambda x: save_slider_values())
