@@ -2,7 +2,6 @@
 
 import rospy
 import cv2
-print(cv2.__version__)
 import numpy as np
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Point
@@ -80,7 +79,8 @@ class ObjectTracker:
         _, binary = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
 
         # Find contours in the binary image
-        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        _, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
 
         # Get slider values
         min_contour_size = cv2.getTrackbarPos("Min Contour Size", "Settings")
