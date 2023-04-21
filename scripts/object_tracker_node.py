@@ -17,6 +17,10 @@ class ObjectTracker:
         self.position_pub = rospy.Publisher("/dog/position", Point, queue_size=10)
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
+        cv2.namedWindow("Settings")
+        cv2.createTrackbar("Min Contour Size", "Settings", 1, 1000, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", 1000, 10000, lambda x: None)
+
     def depth_callback(self, data):
         try:
             self.depth_image = self.bridge.imgmsg_to_cv2(data, "32FC1")
@@ -66,25 +70,33 @@ class ObjectTracker:
 
 
     def track_largest_black_object(self, image):
+        # Convert the image to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        _, threshold = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
 
-        contours = None
-        if cv2.__version__.startswith('3'):
-            _, contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Threshold the image to create a binary image
+        _, binary = cv2.threshold(gray, 30, 255, cv2.THRESH_BINARY_INV)
+
+        # Find contours in the binary image
+        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Get slider values
+        min_contour_size = cv2.getTrackbarPos("Min Contour Size", "Settings")
+        max_contour_size = cv2.getTrackbarPos("Max Contour Size", "Settings")
+
+        # Filter the contours by size
+        filtered_contours = [c for c in contours if min_contour_size <= cv2.contourArea(c) <= max_contour_size]
+
+        # Find the largest contour
+        if len(filtered_contours) > 0:
+            largest_contour = max(filtered_contours, key=cv2.contourArea)
+            x, y, w, h = cv2.boundingRect(largest_contour)
+            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            object_center = (x + w // 2, y + h // 2)
         else:
-            contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            object_center = None
 
-        if not contours:
-            return None, None
+        return image, object_center, (x, y)
 
-        largest_contour = max(contours, key=cv2.contourArea)
-        x, y, w, h = cv2.boundingRect(largest_contour)
-
-        cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        #cv2.putText(image, "X: {}, Z: {}".format(x+w//2, y+h//2), (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-        return image, (x + w // 2, y + h // 2), (x, y)
 
 
 def main():
