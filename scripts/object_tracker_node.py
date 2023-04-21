@@ -3,6 +3,7 @@
 import rospy
 import cv2
 import numpy as np
+import json
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Point
 from std_msgs.msg import Empty
@@ -17,9 +18,10 @@ class ObjectTracker:
         self.position_pub = rospy.Publisher("/dog/position", Point, queue_size=10)
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
+        min_contour_size, max_contour_size = load_slider_values()
         cv2.namedWindow("Settings")
-        cv2.createTrackbar("Min Contour Size", "Settings", 1, 1000, lambda x: None)
-        cv2.createTrackbar("Max Contour Size", "Settings", 1000, 10000, lambda x: None)
+        cv2.createTrackbar("Min Contour Size", "Settings", min_contour_size, 1000, lambda x: None)
+        cv2.createTrackbar("Max Contour Size", "Settings", max_contour_size, 10000, lambda x: None)
 
     def depth_callback(self, data):
         try:
@@ -86,6 +88,9 @@ class ObjectTracker:
         min_contour_size = cv2.getTrackbarPos("Min Contour Size", "Settings")
         max_contour_size = cv2.getTrackbarPos("Max Contour Size", "Settings")
 
+        # Save slider values to JSON file
+        save_slider_values(min_contour_size, max_contour_size)
+
         # Filter the contours by size
         filtered_contours = [c for c in contours if min_contour_size <= cv2.contourArea(c) <= max_contour_size]
 
@@ -99,6 +104,30 @@ class ObjectTracker:
         else:
             return image, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
+def save_slider_values(min_contour_size, max_contour_size):
+    slider_values = {
+        'min_contour_size': min_contour_size,
+        'max_contour_size': max_contour_size
+    }
+
+    with open('slider_values.json', 'w') as outfile:
+        json.dump(slider_values, outfile)
+
+def load_slider_values():
+    default_min_contour_size = 1
+    default_max_contour_size = 1000
+
+    try:
+        with open('slider_values.json', 'r') as infile:
+            slider_values = json.load(infile)
+            return slider_values['min_contour_size'], slider_values['max_contour_size']
+    except IOError:
+        print("Slider values file not found. Creating a new file with default values.")
+        
+        # Save default values to a new JSON file
+        save_slider_values(default_min_contour_size, default_max_contour_size)
+        
+        return default_min_contour_size, default_max_contour_size
 
 
 def main():
