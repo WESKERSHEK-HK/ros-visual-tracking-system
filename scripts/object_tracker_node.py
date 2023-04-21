@@ -27,13 +27,12 @@ class RobotTracker:
 
         self.rate = rospy.Rate(30)
 
-        cv2.waitKey(1)
         print('start robot tracker')
         # Load settings from file
         self.settings = self.load_settings()
 
         # Create UI window and trackbars
-        cv2.namedWindow("Settings", cv2.WINDOW_NORMAL)
+        cv2.imshow("Settings", cv2.WINDOW_NORMAL)
         cv2.createTrackbar("Color Threshold", "Settings", self.settings["color_threshold"], 255, self.update_settings)
         cv2.createTrackbar("Contour Size", "Settings", self.settings["contour_size"], 1000, self.update_settings)
         cv2.createTrackbar("Trim Size", "Settings", self.settings["trim_size"], 50, self.update_settings)
