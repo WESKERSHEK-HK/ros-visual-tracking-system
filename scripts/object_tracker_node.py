@@ -11,11 +11,23 @@ from cv_bridge import CvBridge, CvBridgeError
 class ObjectTracker:
     def __init__(self):
         self.bridge = CvBridge()
+        self.depth_image = None
         self.image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.image_callback)
+        self.depth_sub = rospy.Subscriber("/camera/depth/image_rect_raw", Image, self.depth_callback)
         self.position_pub = rospy.Publisher("/dog/position", Point, queue_size=10)
         self.home_pub = rospy.Publisher("/dog/home", Empty, queue_size=10)
 
+    def depth_callback(self, data):
+        try:
+            self.depth_image = self.bridge.imgmsg_to_cv2(data, "32FC1")
+        except CvBridgeError as e:
+            print(e)
+            return
+
     def image_callback(self, data):
+        if self.depth_image is None:
+            return
+        
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
@@ -24,18 +36,25 @@ class ObjectTracker:
 
         tracked_object, object_pos = self.track_largest_black_object(cv_image)
         if tracked_object is not None:
-            cv2.imshow("Tracked Object", tracked_object)
+            smaller_size = (320, 240)
+            tracked_object_resized = cv2.resize(tracked_object, smaller_size)
+
+            cv2.imshow("Tracked Object", tracked_object_resized)
             cv2.waitKey(1)
 
+            x, y = object_pos
+            depth = self.depth_image[y, x]
+
             position_msg = Point()
-            position_msg.x = object_pos[0]
+            position_msg.x = x
             position_msg.y = 0
-            position_msg.z = object_pos[1]
+            position_msg.z = depth
 
             self.position_pub.publish(position_msg)
 
             if -30 <= position_msg.x <= 30 and -50 <= position_msg.z <= 50:
                 self.home_pub.publish(Empty())
+
 
     def track_largest_black_object(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
