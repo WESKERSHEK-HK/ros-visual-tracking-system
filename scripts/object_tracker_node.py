@@ -38,6 +38,7 @@ class ObjectTracker:
         if tracked_object is not None:
             smaller_size = (320, 240)
             tracked_object_resized = cv2.resize(tracked_object, smaller_size)
+            cv2.putText(tracked_object_resized, "X: {}, Z: {}".format(x, y), (x * smaller_size[0] // cv_image.shape[1], y * smaller_size[1] // cv_image.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             cv2.imshow("Tracked Object", tracked_object_resized)
             cv2.waitKey(1)
@@ -78,7 +79,7 @@ class ObjectTracker:
         x, y, w, h = cv2.boundingRect(largest_contour)
 
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(image, "X: {}, Z: {}".format(x+w//2, y+h//2), (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        #cv2.putText(image, "X: {}, Z: {}".format(x+w//2, y+h//2), (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         return image, (x + w // 2, y + h // 2)
 
