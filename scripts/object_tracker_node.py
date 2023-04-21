@@ -49,7 +49,7 @@ class ObjectTracker:
         x, y, w, h = cv2.boundingRect(largest_contour)
 
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(image, f"X: {x+w//2}, Z: {y+h//2}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(image, "X: {}, Z: {}".format(x+w//2, y+h//2), (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         return image, (x + w // 2, y + h // 2)
 
