@@ -25,6 +25,7 @@ class RobotTracker:
 
         self.rate = rospy.Rate(30)
 
+        print('start robot tracker')
         # Load settings from file
         self.settings = self.load_settings()
 
@@ -33,6 +34,7 @@ class RobotTracker:
         cv2.createTrackbar("Color Threshold", "Settings", self.settings["color_threshold"], 255, self.update_settings)
         cv2.createTrackbar("Contour Size", "Settings", self.settings["contour_size"], 1000, self.update_settings)
         cv2.createTrackbar("Trim Size", "Settings", self.settings["trim_size"], 50, self.update_settings)
+        print('start create cv window')
 
     def update_settings(self, x):
         self.settings["color_threshold"] = cv2.getTrackbarPos("Color Threshold", "Settings")
