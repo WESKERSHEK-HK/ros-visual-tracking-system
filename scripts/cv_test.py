@@ -10,7 +10,7 @@ class ImageSubtraction:
     def __init__(self):
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.image_callback)
-        self.background_image = cv2.imread("background.jpeg")
+        self.background_image = cv2.imread("~/catkin_ws/src/object_tracker/scripts/background.jpeg")
 
     def image_callback(self, data):
         try:
