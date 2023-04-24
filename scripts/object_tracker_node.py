@@ -115,7 +115,7 @@ class ObjectTracker:
         #_, binary = cv2.threshold(gray, 8, 255, cv2.THRESH_BINARY_INV)
         lower_bound = np.array([0, 0, 0])
         upper_bound = np.array([50, 70, 30])
-        _, binary = cv2.inRange(image, lower_bound, upper_bound)
+        binary = cv2.inRange(image, lower_bound, upper_bound)
         
         # Find contours in the binary image
         _, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
