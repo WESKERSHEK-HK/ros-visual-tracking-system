@@ -104,7 +104,7 @@ class ObjectTracker:
         #height, width = image.shape[:2]
         #print(height)
         #print(width)
-        crop_image = image[180:720 - 270, 320:1280 - 320]
+        #crop_image = image[180:720 - 270, 320:1280 - 320]
         #hsv_image = cv2.cvtColor(crop_image, cv2.COLOR_BGR2HSV)
 
         # Convert the image to grayscale
@@ -115,8 +115,8 @@ class ObjectTracker:
         #_, binary = cv2.threshold(gray, 8, 255, cv2.THRESH_BINARY_INV)
         lower_bound = np.array([0, 0, 0])
         upper_bound = np.array([50, 70, 30])
-        _, binary = cv2.inRange(crop_image, lower_bound, upper_bound)
-
+        _, binary = cv2.inRange(image, lower_bound, upper_bound)
+        
         # Find contours in the binary image
         _, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
