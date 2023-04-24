@@ -44,4 +44,7 @@ def main():
         rospy.spin()
     except KeyboardInterrupt:
         print ("Shutting down")
-    cv2.destroyAllWindows
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
