@@ -45,14 +45,15 @@ class ObjectTracker:
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             #h
-            background = cv2.imread('~/catkin_ws/src/object_tracker/scripts/background.jpeg')
-            sub_image = cv2.subtract(cv_image,background)
-            hsv_image = cv2.cvtColor(sub_image, cv2.COLOR_BGR2HSV)
+            background = cv2.imread('/home/ubuntu/catkin_ws/src/object_tracker/scripts/background.jpeg')
+            background_resize = cv2.resize(background, (cv_image.shape[1],cv_image.shape[0]))
+            #sub_image = cv2.subtract(cv_image,background_resize)
+            #hsv_image = cv2.cvtColor(sub_image, cv2.COLOR_BGR2HSV)
         except CvBridgeError as e:
             print(e)
             return
 
-        tracked_object, object_pos, pos, h, w = self.track_largest_black_object(hsv_image)
+        tracked_object, object_pos, pos, h, w = self.track_largest_black_object(cv_image)
 
         if tracked_object is not None and object_pos is not None and pos is not None:
             x, y = pos
@@ -80,8 +81,8 @@ class ObjectTracker:
             position_msg.y = y
             position_msg.z = 0.0
 
-            cv2.imshow("Tracked Object", tracked_object_resized)
-            cv2.waitKey(1)
+            #cv2.imshow("Tracked Object", tracked_object_resized)
+            #cv2.waitKey(1)
 
             # Check if x and y are within the depth image dimensions
             if 0 <= x < depth_image_width and 0 <= y < depth_image_height:
@@ -111,14 +112,14 @@ class ObjectTracker:
         #hsv_image = cv2.cvtColor(crop_image, cv2.COLOR_BGR2HSV)
 
         # Convert the image to grayscale
-        #gray = cv2.cvtColor(crop_image, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
      
         # Threshold the image to create a binary image
-        #_, binary = cv2.threshold(gray, 8, 255, cv2.THRESH_BINARY_INV)
-        lower_bound = np.array([0, 0, 0])
-        upper_bound = np.array([180, 250, 30])
-        binary = cv2.inRange(image, lower_bound, upper_bound)
+        _, binary = cv2.threshold(gray, 8, 255, cv2.THRESH_BINARY_INV)
+        lower_bound = np.array([0, 10, 0])
+        upper_bound = np.array([80, 100, 30])
+        #binary = cv2.inRange(image, lower_bound, upper_bound)
         
         # Find contours in the binary image
         _, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -128,7 +129,7 @@ class ObjectTracker:
         #min_contour_size = cv2.getTrackbarPos("Min Contour Size", "Settings")
         #max_contour_size = cv2.getTrackbarPos("Max Contour Size", "Settings")
         min_contour_size = 2000
-        max_contour_size = 6000
+        max_contour_size = 7000
 
         # Filter the contours by size
         filtered_contours = [c for c in contours if min_contour_size <= cv2.contourArea(c) <= max_contour_size]
@@ -137,11 +138,11 @@ class ObjectTracker:
         if len(filtered_contours) > 0:
             largest_contour = max(filtered_contours, key=cv2.contourArea)
             x, y, w, h = cv2.boundingRect(largest_contour)
-            cv2.rectangle(binary, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             object_center = (x + w // 2, y + h // 2)
-            return binary, object_center, (x, y), h, w
+            return image, object_center, (x, y), h, w
         else:
-            return binary, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
+            return image, None, None, None, None  # Return None for object_center and (x, y) when there are no valid contours
 
 
 
