@@ -44,7 +44,10 @@ class ObjectTracker:
         
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-            hsv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+            #h
+            background = cv2.imread('background.jpeg')
+            sub_image = cv2.subtract(cv_image,background)
+            hsv_image = cv2.cvtColor(sub_image, cv2.COLOR_BGR2HSV)
         except CvBridgeError as e:
             print(e)
             return
