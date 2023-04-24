@@ -70,8 +70,8 @@ class ObjectTracker:
             
 
             x, y = object_pos
-            crop_depth = self.depth_image[180:720 - 270, 320:1280 - 320]
-            depth_image_height, depth_image_width = crop_depth.shape
+            #crop_depth = self.depth_image[180:720 - 270, 320:1280 - 320]
+            depth_image_height, depth_image_width = self.depth_image.shape
             position_msg = Point()
             position_msg.x = x
             position_msg.y = y
@@ -82,7 +82,7 @@ class ObjectTracker:
 
             # Check if x and y are within the depth image dimensions
             if 0 <= x < depth_image_width and 0 <= y < depth_image_height:
-                depth = crop_depth[y, x]
+                depth = self.depth_image[y, x]
 
                 position_msg = Point()
                 position_msg.x = x
@@ -114,7 +114,7 @@ class ObjectTracker:
         # Threshold the image to create a binary image
         #_, binary = cv2.threshold(gray, 8, 255, cv2.THRESH_BINARY_INV)
         lower_bound = np.array([0, 0, 0])
-        upper_bound = np.array([50, 70, 30])
+        upper_bound = np.array([180, 250, 30])
         binary = cv2.inRange(image, lower_bound, upper_bound)
         
         # Find contours in the binary image
