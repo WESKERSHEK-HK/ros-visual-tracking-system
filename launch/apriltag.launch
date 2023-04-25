@@ -1,0 +1,6 @@
+<launch>
+    <node name="apriltag_detector" pkg="apriltag_ros" type="continuous_node" output="screen">
+        <remap from="image_rect" to="/camera/color/image_raw"/>
+        <rosparam command="load" file="$(find object_tracker)/config/apriltag_settings.yaml"/>
+    </node>
+</launch>
