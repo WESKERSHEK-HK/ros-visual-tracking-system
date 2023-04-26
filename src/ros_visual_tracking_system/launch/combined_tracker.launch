@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 
+        Combined Object Tracker Launch File
+        
+        This launch file starts both tracking systems:
+        - HSV color-based tracking
+        - AprilTag fiducial marker tracking
+        
+        Use this for applications requiring multiple tracking methods.
+    -->
+    
+    <!-- Launch RealSense Camera Node -->
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="enable_depth" value="true"/>
+        <arg name="enable_color" value="true"/>
+        <arg name="depth_width" value="640"/>
+        <arg name="depth_height" value="480"/>
+        <arg name="color_width" value="640"/>
+        <arg name="color_height" value="480"/>
+        <arg name="depth_fps" value="30"/>
+        <arg name="color_fps" value="30"/>
+    </include>
+    
+    <!-- Launch AprilTag Detector Node -->
+    <node name="apriltag_detector" 
+          pkg="apriltag_ros" 
+          type="continuous_node" 
+          output="screen"
+          respawn="true">
+        
+        <remap from="image_rect" to="/camera/color/image_raw"/>
+        <rosparam command="load" 
+                  file="$(find object_tracker)/config/apriltag_settings.yaml"/>
+    </node>
+    
+    <!-- Launch HSV Object Tracker Node -->
+    <group if="$(arg enable_hsv)">
+        <node name="hsv_object_tracker" 
+                        pkg="ros_visual_tracking_system" 
+          type="hsv_tracker_node.py" 
+              output="screen"
+              respawn="true">
+            
+            <!-- HSV Filtering Parameters -->
+            <param name="h_lower" value="$(arg h_lower)" type="int"/>
+            <param name="h_upper" value="$(arg h_upper)" type="int"/>
+            <param name="s_lower" value="$(arg s_lower)" type="int"/>
+            <param name="s_upper" value="$(arg s_upper)" type="int"/>
+            <param name="v_lower" value="$(arg v_lower)" type="int"/>
+            <param name="v_upper" value="$(arg v_upper)" type="int"/>
+            
+            <!-- Contour Filtering Parameters -->
+            <param name="min_contour_size" value="$(arg min_contour_size)" type="int"/>
+            <param name="max_contour_size" value="$(arg max_contour_size)" type="int"/>
+            
+            <!-- Home Zone Parameters -->
+            <param name="home_zone_x_min" value="$(arg home_zone_x_min)" type="int"/>
+            <param name="home_zone_x_max" value="$(arg home_zone_x_max)" type="int"/>
+            <param name="home_zone_z_min" value="$(arg home_zone_z_min)" type="int"/>
+            <param name="home_zone_z_max" value="$(arg home_zone_z_max)" type="int"/>
+        </node>
+    </group>
+    
+    <!-- Launch AprilTag Tracker Node -->
+    <group if="$(arg enable_apriltag)">
+        <node name="apriltag_tracker" 
+                        pkg="ros_visual_tracking_system" 
+          type="apriltag_tracker_node.py" 
+              output="screen"
+              respawn="true">
+            
+            <!-- Fallback Position Parameters -->
+            <param name="fallback_x" value="$(arg fallback_x)" type="double"/>
+            <param name="fallback_y" value="$(arg fallback_y)" type="double"/>
+            <param name="fallback_z" value="$(arg fallback_z)" type="double"/>
+            
+            <!-- Detection Parameters -->
+            <param name="max_fail_count" value="$(arg max_fail_count)" type="int"/>
+            <param name="tag_id_to_track" value="$(arg tag_id_to_track)" type="int"/>
+            
+            <!-- Visualization Parameters -->
+            <param name="show_visualization" value="$(arg show_visualization)" type="bool"/>
+            <param name="resize_factor" value="$(arg resize_factor)" type="double"/>
+            <param name="bbox_color" value="$(arg bbox_color)" type="int" array="true"/>
+            <param name="bbox_thickness" value="$(arg bbox_thickness)" type="int"/>
+        </node>
+    </group>
+    
+    <!-- Optional: Launch RViz for visualization -->
+    <group if="$(arg rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find object_tracker)/config/combined_tracker.rviz"/>
+    </group>
+    
+    <!-- Launch Arguments -->
+    <arg name="enable_hsv" default="true" doc="Enable HSV tracking"/>
+    <arg name="enable_apriltag" default="true" doc="Enable AprilTag tracking"/>
+    <arg name="rviz" default="false" doc="Launch RViz visualization"/>
+    
+    <!-- HSV Parameters -->
+    <arg name="h_lower" default="0" doc="HSV H lower bound"/>
+    <arg name="h_upper" default="179" doc="HSV H upper bound"/>
+    <arg name="s_lower" default="0" doc="HSV S lower bound"/>
+    <arg name="s_upper" default="255" doc="HSV S upper bound"/>
+    <arg name="v_lower" default="0" doc="HSV V lower bound"/>
+    <arg name="v_upper" default="255" doc="HSV V upper bound"/>
+    <arg name="min_contour_size" default="100" doc="Minimum contour area"/>
+    <arg name="max_contour_size" default="10000" doc="Maximum contour area"/>
+    <arg name="home_zone_x_min" default="-30" doc="Home zone X minimum"/>
+    <arg name="home_zone_x_max" default="30" doc="Home zone X maximum"/>
+    <arg name="home_zone_z_min" default="-50" doc="Home zone Z minimum"/>
+    <arg name="home_zone_z_max" default="50" doc="Home zone Z maximum"/>
+    
+    <!-- AprilTag Parameters -->
+    <arg name="fallback_x" default="50.0" doc="Fallback X position"/>
+    <arg name="fallback_y" default="50.0" doc="Fallback Y position"/>
+    <arg name="fallback_z" default="50.0" doc="Fallback Z position"/>
+    <arg name="max_fail_count" default="100" doc="Maximum detection failures"/>
+    <arg name="tag_id_to_track" default="0" doc="AprilTag ID to track"/>
+    <arg name="show_visualization" default="true" doc="Show tracking visualization"/>
+    <arg name="resize_factor" default="0.5" doc="Image resize factor"/>
+    <arg name="bbox_color" default="[0, 255, 0]" doc="Bounding box color"/>
+    <arg name="bbox_thickness" default="2" doc="Bounding box thickness"/>
+</launch>

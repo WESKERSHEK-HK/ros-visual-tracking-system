@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 
+        HSV Object Tracker Launch File
+        
+        This launch file starts the HSV-based object tracking system.
+        It launches the RealSense camera and the HSV tracker node.
+    -->
+    
+    <!-- Launch RealSense Camera Node -->
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="enable_depth" value="true"/>
+        <arg name="enable_color" value="true"/>
+        <arg name="depth_width" value="640"/>
+        <arg name="depth_height" value="480"/>
+        <arg name="color_width" value="640"/>
+        <arg name="color_height" value="480"/>
+        <arg name="depth_fps" value="30"/>
+        <arg name="color_fps" value="30"/>
+    </include>
+    
+    <!-- Launch HSV Object Tracker Node -->
+    <node name="hsv_object_tracker" 
+          pkg="ros_visual_tracking_system" 
+          type="hsv_tracker_node.py" 
+          output="screen"
+          respawn="true">
+        
+        <!-- HSV Filtering Parameters -->
+        <param name="h_lower" value="0" type="int"/>
+        <param name="h_upper" value="179" type="int"/>
+        <param name="s_lower" value="0" type="int"/>
+        <param name="s_upper" value="255" type="int"/>
+        <param name="v_lower" value="0" type="int"/>
+        <param name="v_upper" value="255" type="int"/>
+        
+        <!-- Contour Filtering Parameters -->
+        <param name="min_contour_size" value="100" type="int"/>
+        <param name="max_contour_size" value="10000" type="int"/>
+        
+        <!-- Home Zone Parameters -->
+        <param name="home_zone_x_min" value="-30" type="int"/>
+        <param name="home_zone_x_max" value="30" type="int"/>
+        <param name="home_zone_z_min" value="-50" type="int"/>
+        <param name="home_zone_z_max" value="50" type="int"/>
+    </node>
+    
+    <!-- Optional: Launch RViz for visualization -->
+    <group if="$(arg rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find ros_visual_tracking_system)/config/hsv_tracker.rviz"/>
+    </group>
+    
+    <!-- Launch Arguments -->
+    <arg name="rviz" default="false" doc="Launch RViz visualization"/>
+</launch>

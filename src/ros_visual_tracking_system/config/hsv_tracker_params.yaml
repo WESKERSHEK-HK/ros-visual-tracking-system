@@ -1,0 +1,77 @@
+# HSV Tracker Configuration File
+# 
+# This file contains configuration parameters for the HSV-based object tracking system.
+# Adjust these parameters based on your specific tracking requirements.
+
+hsv_tracker:
+  # HSV Color Filtering Parameters
+  # Hue: 0-179 (OpenCV uses 0-179 instead of 0-360)
+  # Saturation: 0-255
+  # Value: 0-255
+  
+  # Default HSV bounds for black objects
+  h_lower: 0
+  h_upper: 179
+  s_lower: 0
+  s_upper: 255
+  v_lower: 0
+  v_upper: 50
+  
+  # Alternative HSV bounds for common colors:
+  # Red (low): h_lower: 0, h_upper: 10, s_lower: 100, s_upper: 255, v_lower: 50, v_upper: 255
+  # Red (high): h_lower: 170, h_upper: 179, s_lower: 100, s_upper: 255, v_lower: 50, v_upper: 255
+  # Green: h_lower: 35, h_upper: 85, s_lower: 100, s_upper: 255, v_lower: 50, v_upper: 255
+  # Blue: h_lower: 100, h_upper: 130, s_lower: 100, s_upper: 255, v_lower: 50, v_upper: 255
+  # Yellow: h_lower: 20, h_upper: 35, s_lower: 100, s_upper: 255, v_lower: 50, v_upper: 255
+  
+  # Contour Filtering Parameters
+  # Minimum contour area (pixels^2)
+  min_contour_size: 100
+  
+  # Maximum contour area (pixels^2)
+  max_contour_size: 10000
+  
+  # Home Zone Parameters
+  # X-axis bounds for home zone detection
+  home_zone_x_min: -30
+  home_zone_x_max: 30
+  
+  # Z-axis bounds for home zone detection (depth)
+  home_zone_z_min: -50
+  home_zone_z_max: 50
+  
+  # Visualization Parameters
+  # Display size for tracking window
+  display_width: 320
+  display_height: 240
+  
+  # Bounding box color (BGR format)
+  bbox_color: [0, 255, 0]  # Green
+  
+  # Bounding box thickness
+  bbox_thickness: 2
+  
+  # Text color for overlay (BGR format)
+  text_color: [0, 255, 0]  # Green
+  
+  # Text scale
+  text_scale: 0.5
+  
+  # Text thickness
+  text_thickness: 2
+  
+  # Processing Parameters
+  # Enable morphological operations for noise reduction
+  enable_morphology: true
+  
+  # Morphological kernel size
+  morphology_kernel_size: 5
+  
+  # Enable Gaussian blur for smoothing
+  enable_blur: false
+  
+  # Blur kernel size (must be odd)
+  blur_kernel_size: 5
+  
+  # Blur sigma
+  blur_sigma: 1.0

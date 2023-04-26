@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 
+        AprilTag Object Tracker Launch File
+        
+        This launch file starts the AprilTag-based object tracking system.
+        It launches the RealSense camera, AprilTag detector, and tracker node.
+    -->
+    
+    <!-- Launch RealSense Camera Node -->
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="enable_depth" value="true"/>
+        <arg name="enable_color" value="true"/>
+        <arg name="depth_width" value="640"/>
+        <arg name="depth_height" value="480"/>
+        <arg name="color_width" value="640"/>
+        <arg name="color_height" value="480"/>
+        <arg name="depth_fps" value="30"/>
+        <arg name="color_fps" value="30"/>
+    </include>
+    
+    <!-- Launch AprilTag Detector Node -->
+    <node name="apriltag_detector" 
+          pkg="apriltag_ros" 
+          type="continuous_node" 
+          output="screen"
+          respawn="true">
+        
+        <!-- Remap image topic to RealSense color stream -->
+        <remap from="image_rect" to="/camera/color/image_raw"/>
+        
+        <!-- Load AprilTag configuration -->
+        <rosparam command="load" 
+                  file="$(find object_tracker)/config/apriltag_settings.yaml"/>
+    </node>
+    
+    <!-- Launch AprilTag Tracker Node -->
+    <node name="apriltag_tracker" 
+          pkg="ros_visual_tracking_system" 
+          type="apriltag_tracker_node.py" 
+          output="screen"
+          respawn="true">
+        
+        <!-- Fallback Position Parameters -->
+        <param name="fallback_x" value="50.0" type="double"/>
+        <param name="fallback_y" value="50.0" type="double"/>
+        <param name="fallback_z" value="50.0" type="double"/>
+        
+        <!-- Detection Parameters -->
+        <param name="max_fail_count" value="100" type="int"/>
+        <param name="tag_id_to_track" value="0" type="int"/>
+        
+        <!-- Visualization Parameters -->
+        <param name="show_visualization" value="true" type="bool"/>
+        <param name="resize_factor" value="0.5" type="double"/>
+        <param name="bbox_color" value="[0, 255, 0]" type="int" array="true"/>
+        <param name="bbox_thickness" value="2" type="int"/>
+    </node>
+    
+    <!-- Optional: Launch RViz for visualization -->
+    <group if="$(arg rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find object_tracker)/config/apriltag_tracker.rviz"/>
+    </group>
+    
+    <!-- Launch Arguments -->
+    <arg name="rviz" default="false" doc="Launch RViz visualization"/>
+</launch>
